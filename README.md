@@ -14,15 +14,15 @@ The **Expense Tracker** is a web application designed to help users manage and t
 - **Data Filtering**: Filter and search for expenses by category, date, or amount.
 
 ## Technologies Used
-- **Backend**: Java, Spring Boot, Spring MVC, Spring Data JPA
-- **Frontend**: JSP, HTML, CSS, Tailwind CSS, Chart.js
+- **Backend**: Java, Spring MVC, Spring Data JPA
+- **Frontend**: JSP, HTML, Tailwind CSS, Chart.js
 - **Database**: MySQL (or any other relational database)
 - **Others**: Jackson for JSON processing
 
 ## Setup and Installation
 
 ### Prerequisites
-- **Java**: Version 11 or higher
+- **Java**: Version 17+ or higher
 - **Maven**: For dependency management
 - **Database**: MySQL (or another relational database, modify `application.properties` if using a different database)
 - **IDE**: IntelliJ IDEA, Eclipse, or any Java IDE
