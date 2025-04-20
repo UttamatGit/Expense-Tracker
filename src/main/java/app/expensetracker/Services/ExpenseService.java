@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class ExpenseService {
+public class ExpenseService implements app.expensetracker.Repos.ExpenseService {
 
     @Autowired
     private ExpenseRepository expenseRepository;
@@ -34,7 +34,6 @@ public class ExpenseService {
 
     // Add this method to fetch an Expense by its id
     public Expense getExpenseById(int id) {
-        // You can use findById from JpaRepository (make sure id type matches your Expense entity)
         return expenseRepository.findById((long) id).orElse(null);
     }
 
@@ -64,9 +63,7 @@ public class ExpenseService {
         return result;
     }
 
-
-    // Specifications
-
+    // Specifications for filtering
     private Specification<Expense> expenseBelongsToUser(User user) {
         return (root, query, cb) -> cb.equal(root.get("user"), user);
     }
@@ -83,40 +80,43 @@ public class ExpenseService {
         return (root, query, cb) -> cb.equal(root.get("category"), category);
     }
 
-
     public List<Expense> getExpensesByUserSorted(User user, Sort sort) {
         return expenseRepository.findByUser(user, sort);
     }
 
-
-    public double getTotalExpenses() {
-        return expenseRepository.getTotalExpenses();
+    // ✅ Corrected to ensure user-specific total expenses
+    public double getTotalExpenses(User user) {
+        return expenseRepository.getTotalExpensesByUser(user.getId());
     }
 
-    public double getMonthlyExpenses() {
-        return expenseRepository.getMonthlyExpenses();
+    // ✅ Corrected to ensure user-specific monthly expenses
+    public double getMonthlyExpenses(User user) {
+        return expenseRepository.getMonthlyExpensesForUser(user.getId());
     }
 
-    public String getTopCategory() {
-        return expenseRepository.getTopCategory();
+    // ✅ Corrected to return user-specific top category
+    public String getTopCategory(User user) {
+        List<String> categories = expenseRepository.getTopCategoryForUser(user.getId());
+        return categories.isEmpty() ? "N/A" : categories.get(0);
     }
 
-    public Map<String, Double> getCategoryWiseExpenses() {
+    // ✅ Corrected to return user-specific category-wise expenses
+    public Map<String, Double> getCategoryWiseExpenses(User user) {
         Map<String, Double> categoryExpenses = new HashMap<>();
-        categoryExpenses.put("Food", expenseRepository.getExpenseByCategory("Food"));
-        categoryExpenses.put("Transport", expenseRepository.getExpenseByCategory("Transport"));
-        categoryExpenses.put("Bills", expenseRepository.getExpenseByCategory("Bills"));
-        categoryExpenses.put("Entertainment", expenseRepository.getExpenseByCategory("Entertainment"));
-        categoryExpenses.put("Others", expenseRepository.getExpenseByCategory("Others"));
+        for (String category : List.of("Food", "Transport", "Bills", "Entertainment", "Others")) {
+            Double amount = expenseRepository.getExpenseByCategoryAndUser(category, user.getId());
+            categoryExpenses.put(category, amount != null ? amount : 0.0);
+        }
         return categoryExpenses;
     }
 
-    public List<Double> getMonthlyExpensesBreakdown() {
+    // ✅ Corrected to return user-specific monthly expense breakdown
+    public List<Double> getMonthlyExpensesBreakdown(User user) {
         List<Double> monthlyExpenses = new ArrayList<>();
         for (int i = 1; i <= 12; i++) {
-            monthlyExpenses.add(expenseRepository.getExpenseByMonth(i));
+            Double expense = expenseRepository.getExpenseByMonthAndUser(i, user.getId());
+            monthlyExpenses.add(expense != null ? expense : 0.0);
         }
         return monthlyExpenses;
     }
-
 }

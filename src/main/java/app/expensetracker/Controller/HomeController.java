@@ -1,4 +1,6 @@
 package app.expensetracker.Controller;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import app.expensetracker.Model.User;
 import app.expensetracker.Services.ExpenseService;
@@ -56,33 +58,76 @@ public class HomeController {
         return "redirect:/"; // Redirect to login page
     }
 
+//    @GetMapping("/dashboard")
+//    public String dashboard(HttpSession session, Model model) {
+//        // Check if the user is logged in
+//        if (session.getAttribute("loggedInUser") == null) {
+//            return "redirect:/";
+//        }
+//
+//        // Fetching analytics data
+//        double totalExpenses = expenseService.getTotalExpenses();
+//        double monthlyExpenses = expenseService.getMonthlyExpenses();
+//        String topCategory = expenseService.getTopCategory();
+//
+//        // Fetch category-wise expenses for the Pie Chart
+//        Map<String, Double> categoryExpenses = expenseService.getCategoryWiseExpenses();
+//
+//        // Fetch monthly expenses for the Bar Chart
+//        List<Double> monthlyExpenseList = expenseService.getMonthlyExpensesBreakdown();
+//
+//        // Passing data to JSP
+//        model.addAttribute("totalExpenses", totalExpenses);
+//        model.addAttribute("monthlyExpenses", monthlyExpenses);
+//        model.addAttribute("topCategory", topCategory);
+//        model.addAttribute("categoryExpenses", categoryExpenses);
+//        model.addAttribute("monthlyExpenseList", monthlyExpenseList);
+//
+//        return "dashboard"; // This maps to dashboard.jsp
+//    }
+
+
+
+
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {
-        // Check if the user is logged in
-        if (session.getAttribute("loggedInUser") == null) {
+        // Get the logged-in user
+        User user = (User) session.getAttribute("loggedInUser");
+        if (user == null) {
             return "redirect:/";
         }
 
-        // Fetching analytics data
-        double totalExpenses = expenseService.getTotalExpenses();
-        double monthlyExpenses = expenseService.getMonthlyExpenses();
-        String topCategory = expenseService.getTopCategory();
+        // Fetching user-specific analytics data
+        double totalExpenses = expenseService.getTotalExpenses(user);
+        double monthlyExpenses = expenseService.getMonthlyExpenses(user);
+        String topCategory = expenseService.getTopCategory(user);
 
         // Fetch category-wise expenses for the Pie Chart
-        Map<String, Double> categoryExpenses = expenseService.getCategoryWiseExpenses();
+        Map<String, Double> categoryExpenses = expenseService.getCategoryWiseExpenses(user);
 
         // Fetch monthly expenses for the Bar Chart
-        List<Double> monthlyExpenseList = expenseService.getMonthlyExpensesBreakdown();
+        List<Double> monthlyExpenseList = expenseService.getMonthlyExpensesBreakdown(user);
 
-        // Passing data to JSP
+        // Convert Maps and Lists to JSON for use in JavaScript
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            String categoryExpensesJson = mapper.writeValueAsString(categoryExpenses);
+            String monthlyExpenseListJson = mapper.writeValueAsString(monthlyExpenseList);
+
+            model.addAttribute("categoryExpensesJson", categoryExpensesJson);
+            model.addAttribute("monthlyExpenseListJson", monthlyExpenseListJson);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace(); // Or log it properly
+        }
+
+        // Pass other attributes as normal
         model.addAttribute("totalExpenses", totalExpenses);
         model.addAttribute("monthlyExpenses", monthlyExpenses);
         model.addAttribute("topCategory", topCategory);
-        model.addAttribute("categoryExpenses", categoryExpenses);
-        model.addAttribute("monthlyExpenseList", monthlyExpenseList);
 
-        return "dashboard"; // This maps to dashboard.jsp
+        return "dashboard";
     }
+
 
 
 }

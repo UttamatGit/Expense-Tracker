@@ -106,7 +106,7 @@
                             <div class="flex justify-between items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all duration-200">
                                 <div>
                                     <h3 class="text-lg font-semibold text-gray-800">${expense.expenseName}</h3>
-                                    <p class="text-sm text-gray-600">$${expense.amount} - ${expense.category} - ${expense.date}</p>
+                                    <p class="text-sm text-gray-600">₹${expense.amount} - ${expense.category} - ${expense.date}</p>
                                 </div>
                                 <div class="flex space-x-4">
                                     <!-- Edit Button -->

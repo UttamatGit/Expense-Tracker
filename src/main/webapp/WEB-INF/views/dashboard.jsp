@@ -17,7 +17,6 @@
             transform: translateY(-5px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
-
     </style>
 </head>
 <body class="bg-gray-50">
@@ -70,21 +69,27 @@
     </div>
 </div>
 
+<!-- Inject JSON data from backend -->
+<script>
+    const categoryExpenses = JSON.parse('${categoryExpensesJson}');
+    const monthlyData = JSON.parse('${monthlyExpenseListJson}');
+</script>
+
 <script>
     // Expense Breakdown (Pie Chart)
-    var ctx1 = document.getElementById('expenseChart').getContext('2d');
-    var expenseChart = new Chart(ctx1, {
+    const ctx1 = document.getElementById('expenseChart').getContext('2d');
+    const expenseChart = new Chart(ctx1, {
         type: 'pie',
         data: {
             labels: ['Food', 'Transport', 'Bills', 'Entertainment', 'Others'],
             datasets: [{
                 label: 'Expense Breakdown',
                 data: [
-                    ${categoryExpenses["Food"] != null ? categoryExpenses["Food"] : 0},
-                    ${categoryExpenses["Transport"] != null ? categoryExpenses["Transport"] : 0},
-                    ${categoryExpenses["Bills"] != null ? categoryExpenses["Bills"] : 0},
-                    ${categoryExpenses["Entertainment"] != null ? categoryExpenses["Entertainment"] : 0},
-                    ${categoryExpenses["Others"] != null ? categoryExpenses["Others"] : 0}
+                    categoryExpenses['Food'] || 0,
+                    categoryExpenses['Transport'] || 0,
+                    categoryExpenses['Bills'] || 0,
+                    categoryExpenses['Entertainment'] || 0,
+                    categoryExpenses['Others'] || 0
                 ],
                 backgroundColor: ['#4CAF50', '#FF9800', '#F44336', '#3F51B5', '#9C27B0']
             }]
@@ -100,34 +105,18 @@
                 tooltip: {
                     enabled: true,
                     callbacks: {
-                        label: function(tooltipItem) {
+                        label: function (tooltipItem) {
                             return tooltipItem.label + ': ₹' + tooltipItem.raw;
                         }
                     }
                 }
             }
         }
-
     });
-    // Append '4d' to the colors (alpha channel), except for the hovered index
-    function handleHover(evt, item, legend) {
-        legend.chart.data.datasets[0].backgroundColor.forEach((color, index, colors) => {
-            colors[index] = index === item.index || color.length === 9 ? color : color + '4D';
-        });
-        legend.chart.update();
-    }
 
-    // Removes the alpha channel from background colors
-    function handleLeave(evt, item, legend) {
-        legend.chart.data.datasets[0].backgroundColor.forEach((color, index, colors) => {
-            colors[index] = color.length === 9 ? color.slice(0, -2) : color;
-        });
-        legend.chart.update();
-    }
-
-    // Ensure `monthlyExpenseList` is an array
-    const monthlyData = ${monthlyExpenseList != null ? monthlyExpenseList : "[]"};
-    const totalDuration = 4000; // Animation duration in ms
+    // Monthly Expenses (Animated Line Chart)
+    const ctx2 = document.getElementById('monthlyChart').getContext('2d');
+    const totalDuration = 4000;
     const delayBetweenPoints = totalDuration / monthlyData.length;
 
     const previousY = (ctx) =>
@@ -140,7 +129,7 @@
             type: 'number',
             easing: 'linear',
             duration: delayBetweenPoints,
-            from: NaN, // The point is initially skipped
+            from: NaN,
             delay(ctx) {
                 if (ctx.type !== 'data' || ctx.xStarted) return 0;
                 ctx.xStarted = true;
@@ -160,9 +149,7 @@
         }
     };
 
-    // Monthly Expenses (Animated Line Chart)
-    var ctx2 = document.getElementById('monthlyChart').getContext('2d');
-    var monthlyChart = new Chart(ctx2, {
+    const monthlyChart = new Chart(ctx2, {
         type: 'line',
         data: {
             labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],

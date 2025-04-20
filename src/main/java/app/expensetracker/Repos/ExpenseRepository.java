@@ -11,9 +11,10 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Repository
-public interface ExpenseRepository extends JpaRepository<Expense,Long>, JpaSpecificationExecutor<Expense> {
+public interface ExpenseRepository extends JpaRepository<Expense, Long>, JpaSpecificationExecutor<Expense> {
     // Basic method to get all expenses for a specific user.
     List<Expense> findByUser(User user);
 
@@ -34,6 +35,7 @@ public interface ExpenseRepository extends JpaRepository<Expense,Long>, JpaSpeci
         LocalDate end = LocalDate.of(year, 12, 31);
         return findByUserAndDateBetween(user, start, end);
     }
+
     @Query("SELECT COALESCE(SUM(e.amount), 0) FROM Expense e")
     double getTotalExpenses();
 
@@ -49,4 +51,28 @@ public interface ExpenseRepository extends JpaRepository<Expense,Long>, JpaSpeci
     @Query("SELECT SUM(e.amount) FROM Expense e WHERE MONTH(e.date) = :month")
     Double getExpenseByMonth(@Param("month") int month);
 
+
+    List<Expense> findByUserId(int id);
+
+    // ✅ Filtered by user ID
+    @Query("SELECT COALESCE(SUM(e.amount), 0) FROM Expense e WHERE e.user.id = :userId")
+    double getTotalExpensesByUser(@Param("userId") int userId);
+
+    // ✅ Monthly expenses filtered by user
+    @Query("SELECT COALESCE(SUM(e.amount), 0) FROM Expense e WHERE MONTH(e.date) = MONTH(CURRENT_DATE) AND e.user.id = :userId")
+    double getMonthlyExpensesForUser(@Param("userId") int userId);
+
+    // ✅ Top category for the user
+    @Query("SELECT e.category FROM Expense e WHERE e.user.id = :userId GROUP BY e.category ORDER BY SUM(e.amount) DESC")
+    List<String> getTopCategoryForUser(@Param("userId") int userId);
+
+    // ✅ Category + user-wise
+    @Query("SELECT SUM(e.amount) FROM Expense e WHERE e.category = :category AND e.user.id = :userId")
+    Double getExpenseByCategoryAndUser(@Param("category") String category, @Param("userId") int userId);
+
+    // ✅ Monthly + user-wise
+    @Query("SELECT SUM(e.amount) FROM Expense e WHERE FUNCTION('MONTH', e.date) = :month AND e.user.id = :userId")
+    Double getExpenseByMonthAndUser(@Param("month") int month, @Param("userId") int userId);
 }
+
+
