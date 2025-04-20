@@ -85,11 +85,15 @@ By default, the application will run on **http://localhost:8080**. You can acces
 
 ## Screenshots
 
-**Dashboard**:  
-![Dashboard Screenshot](path/to/screenshot.png)
+**Log-In**:  
+![Main Screenshot](https://github.com/UttamatGit/Expense-Tracker/blob/main/Screenshot%201%20(1).png?raw=true)
 
 **Add Expense**:  
-![Add Expense Screenshot](path/to/screenshot.png)
+![Add Expense Screenshot](https://github.com/UttamatGit/Expense-Tracker/blob/main/Screenshot%201%20(2).png?raw=true)
+
+**View Expenses**:  
+![View Expenses Screenshot](https://github.com/UttamatGit/Expense-Tracker/blob/main/Screenshot%201%20(3).png?raw=true)
+
 
 ## Contributing
 
